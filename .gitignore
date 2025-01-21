@@ -1,0 +1,8 @@
+/target
+shell
+0-shell
+*-shell
+Cargo.lock
+test
+*/test*
+*/**/test*
