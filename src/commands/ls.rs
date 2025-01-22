@@ -1,8 +1,9 @@
-use std::fs::{read_dir, Permissions};
+use std::fs::{read_dir, DirEntry, Permissions};
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
 use std::path::Path;
 use crate::utils::date::format_datetime;
 use crate::utils::error::ShellError;
+use crate::utils::utils::{gid_to_name, uid_to_name};
 
 /**
  * List the contents of a directory.
@@ -36,8 +37,7 @@ pub fn ls(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
         }
     }
 
-    let mut entries = read_dir(current_dir)?;
-    let mut entries: Vec<_> = entries
+    let mut entries: Vec<DirEntry> = read_dir(current_dir)?
         .filter_map(|entry| entry.ok())
         .collect();
     entries.sort_by_key(|entry| entry.file_name());
@@ -84,8 +84,8 @@ pub fn ls(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
                 file_type,
                 permissions,
                 nlink,
-                uid,
-                gid,
+                uid_to_name(uid),
+                gid_to_name(gid),
                 size,
                 datetime,
                 name_display
