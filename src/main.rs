@@ -15,22 +15,27 @@ fn main() -> io::Result<()> {
         stdout().flush()?;
 
         let mut input = String::new();
-        if stdin().read_line(&mut input)? == 0 {
-            println!();
-            break;
-        }
-
-        let input = input.trim();
-        if input.is_empty() {
-            continue;
-        }
-
-        if let Err(e) = shell.execute(input) {
-            eprintln!("{}", e);
-        }
-
-        if input == "exit" {
-            exit();
+        match stdin().read_line(&mut input) {
+            Ok(0) => {
+                println!();
+                exit();
+            }
+            Ok(_) => {
+                let input = input.trim();
+                if !input.is_empty() {
+                    if input == "exit" {
+                        exit();
+                    }
+                    match shell.execute(input) {
+                        Ok(_) => (),
+                        Err(e) => eprintln!("{}", e),
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("\x1b[31mError reading input: {}\x1b[0m", e);
+                break;
+            }
         }
     }
 

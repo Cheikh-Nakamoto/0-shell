@@ -34,6 +34,7 @@ pub fn cat(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
         file.read_to_string(&mut contents)?;
         print!("{}", contents);
     }
+    println!();
 
     Ok(())
 }
