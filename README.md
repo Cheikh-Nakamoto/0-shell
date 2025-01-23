@@ -1,15 +1,15 @@
 # 🖥️ 0-shell
 ### 🥅 Goal
 - [x] Create a shell that can execute basic commands
-- [ ] Commands
+- [x] Commands
   - [x] echo
   - [x] cd
-  - [ ] ls, including flags -l, -a, and -F
+  - [x] ls, including flags -l, -a, and -F
   - [x] pwd
   - [x] cat
   - [x] cp
-  - [ ] rm, including flags -r
-  - [ ] mv
+  - [x] rm, including flags -r
+  - [x] mv
   - [x] mkdir
   - [x] exit
 - [x] Interruption with Ctrl+D
@@ -54,5 +54,6 @@ make run
 ```
 
 ### Contributors
+- Franchis Janel
 
 ###### Powered by Zone01Dakar
