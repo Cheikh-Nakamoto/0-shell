@@ -23,15 +23,24 @@ use crate::utils::messages::NOT_SPECIFIED;
 */
 pub fn rm(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
     if args.is_empty() {
-        return Err(ShellError::InvalidArguments(NOT_SPECIFIED.to_owned()));
+        return Err(ShellError::InvalidArguments(format!("rm: {NOT_SPECIFIED}")));
     }
 
-    let recursive = args[0] == "-r";
-    let files = if recursive { &args[1..] } else { args };
+    let mut is_recursive = false;
+
+    if args[0] == "-r" {
+        is_recursive = true;
+    }
+
+    if is_recursive && args.len() < 2 {
+        return Err(ShellError::InvalidArguments(format!("rm: {NOT_SPECIFIED}")));
+    }
+
+    let files = if is_recursive { &args[1..] } else { args };
 
     for file in files {
         let path = current_dir.join(file);
-        if recursive {
+        if is_recursive {
             remove_dir_all(&path)?;
         } else {
             remove_file(&path)?;
