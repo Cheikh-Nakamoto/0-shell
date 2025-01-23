@@ -1,6 +1,7 @@
 use std::fs::{remove_dir_all, remove_file};
 use std::path::Path;
 use crate::utils::error::ShellError;
+use crate::utils::messages::NOT_SPECIFIED;
 
 /**
     * Remove files or directories.
@@ -22,7 +23,7 @@ use crate::utils::error::ShellError;
 */
 pub fn rm(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
     if args.is_empty() {
-        return Err(ShellError::InvalidArguments("No file or directory specified".to_owned()));
+        return Err(ShellError::InvalidArguments(NOT_SPECIFIED.to_owned()));
     }
 
     let recursive = args[0] == "-r";

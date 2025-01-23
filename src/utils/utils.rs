@@ -1,9 +1,12 @@
+use std::fs::{File, Permissions};
 use std::io::{BufRead, BufReader};
+use std::os::unix::fs::PermissionsExt;
 
+/// Convert a UID to a username by reading /etc/passwd
 pub fn uid_to_name(uid: u32) -> String {
-    let file = match std::fs::File::open("/etc/passwd") {
+    let file = match File::open("/etc/passwd") {
         Ok(file) => file,
-        Err(_) => return "Error".to_string(),
+        Err(_) => return "ERROR".to_string(),
     };
 
     let reader = BufReader::new(file);
@@ -18,14 +21,14 @@ pub fn uid_to_name(uid: u32) -> String {
             }
         }
     }
-    "Error".to_string()
+    "ERROR".to_string()
 }
 
-/// Convertit un GID en nom de groupe en lisant /etc/group
+/// Convert a GID to a group name by reading /etc/group
 pub fn gid_to_name(gid: u32) -> String {
-    let file = match std::fs::File::open("/etc/group") {
+    let file = match File::open("/etc/group") {
         Ok(file) => file,
-        Err(_) => return "Error".to_string(),
+        Err(_) => return "ERROR".to_string(),
     };
 
     let reader = BufReader::new(file);
@@ -40,5 +43,20 @@ pub fn gid_to_name(gid: u32) -> String {
             }
         }
     }
-    "Error".to_string()
+    "ERROR".to_string()
+}
+
+/// Convert a Permissions struct to a string representation of the permissions
+pub fn permissions_string(permissions: &Permissions) -> String {
+    let mode = permissions.mode();
+    let mut result = String::with_capacity(10);
+
+    for i in (0..3).rev() {
+        let offset = i * 3;
+        result.push(if mode & (1 << (offset + 2)) != 0 { 'r' } else { '-' });
+        result.push(if mode & (1 << (offset + 1)) != 0 { 'w' } else { '-' });
+        result.push(if mode & (1 << offset) != 0 { 'x' } else { '-' });
+    }
+
+    result
 }

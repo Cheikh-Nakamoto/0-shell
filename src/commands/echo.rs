@@ -14,6 +14,11 @@ use crate::utils::error::ShellError;
     *
     * echo(&args);
     * ```
+    *
+    * # Output
+    * ```sh
+    * Hello, world!
+    * ```
 */
 pub fn echo(args: &[&str]) -> Result<(), ShellError> {
     if args.is_empty() {

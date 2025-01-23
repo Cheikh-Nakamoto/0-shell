@@ -1,7 +1,8 @@
-use std::io;
+use std::{env, io};
 use std::io::{stdin, stdout, Write};
 use crate::commands::exit::exit;
 use crate::shell::Shell;
+use crate::utils::messages::CANNOT_READ_INPUT;
 
 mod commands;
 mod utils;
@@ -11,7 +12,17 @@ fn main() -> io::Result<()> {
     let mut shell = Shell::new();
 
     loop {
-        print!("$ ");
+        let current_dir = env::current_dir()?;
+        let current_dir_display = current_dir.to_string_lossy();
+
+        let home_dir = env::var("HOME").unwrap_or_else(|_| "".to_string());
+        let prompt = if current_dir_display.starts_with(&home_dir) {
+            format!("~{}", &current_dir_display[home_dir.len()..])
+        } else {
+            current_dir_display.to_string()
+        };
+
+        print!("\x1b[48;5;238m{}\x1b[0m $ \x1b[38;5;238m\x1b[0m", prompt);
         stdout().flush()?;
 
         let mut input = String::new();
@@ -33,7 +44,7 @@ fn main() -> io::Result<()> {
                 }
             }
             Err(e) => {
-                eprintln!("\x1b[31mError reading input: {}\x1b[0m", e);
+                eprintln!("\x1b[31m{CANNOT_READ_INPUT}: {}\x1b[0m", e);
                 break;
             }
         }

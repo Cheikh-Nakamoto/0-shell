@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use crate::utils::error::ShellError;
+use crate::utils::messages::NO_FILE_SPECIFIED;
 
 /**
     * Display the contents of a file.
@@ -23,7 +24,7 @@ use crate::utils::error::ShellError;
 */
 pub fn cat(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
     if args.is_empty() {
-        return Err(ShellError::InvalidArguments("No file specified".to_owned()));
+        return Err(ShellError::InvalidArguments(NO_FILE_SPECIFIED.to_owned()));
     }
 
     for file_name in args {

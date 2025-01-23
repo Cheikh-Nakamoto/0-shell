@@ -1,9 +1,19 @@
-use std::fs::{read_dir, DirEntry, Permissions};
-use std::os::unix::fs::{MetadataExt, PermissionsExt};
-use std::path::Path;
+use std::fs::{metadata, read_dir, read_link, DirEntry, Metadata};
+use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
+use std::path::{Path, PathBuf};
+use crate::utils::color::get_color;
 use crate::utils::date::format_datetime;
 use crate::utils::error::ShellError;
-use crate::utils::utils::{gid_to_name, uid_to_name};
+use crate::utils::messages::{INVALID_FLAG, NOTHING};
+use crate::utils::utils::{gid_to_name, permissions_string, uid_to_name};
+
+/**
+ * A custom entry struct to store the name and metadata of a directory entry.
+ */
+struct CustomEntry {
+    name: String,
+    metadata: Metadata,
+}
 
 /**
  * List the contents of a directory.
@@ -22,47 +32,110 @@ use crate::utils::utils::{gid_to_name, uid_to_name};
  *
  * ls(current_dir, &args);
  * ```
+ *
+ * # Output
+    * ```sh
+    * $ ls -a
+    * .  ..  file.txt  directory/
+    * ```
  */
 pub fn ls(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
     let mut show_hidden = false;
     let mut long_format = false;
     let mut show_indicator = false;
 
+    // Parse the arguments to determine the options
     for arg in args {
         match *arg {
             "-a" => show_hidden = true,
             "-l" => long_format = true,
             "-F" => show_indicator = true,
-            _ => return Err(ShellError::InvalidArguments("Invalid flag".to_string())),
+            _ => return Err(ShellError::InvalidArguments(INVALID_FLAG.to_string())),
         }
     }
 
-    let mut entries: Vec<DirEntry> = read_dir(current_dir)?
+    // Read the directory entries
+    let entries: Vec<DirEntry> = read_dir(current_dir)?
         .filter_map(|entry| entry.ok())
         .collect();
-    entries.sort_by_key(|entry| entry.file_name());
 
-    if long_format {
-        let total_blocks: u64 = entries
-            .iter()
-            .map(|entry| entry.metadata().map(|m| m.blocks()).unwrap_or(0))
-            .sum();
-        println!("total {}", total_blocks / 2);
+    let dotdot_entry = CustomEntry {
+        name: "..".to_string(),
+        metadata: metadata(current_dir.join(".."))?,
+    };
+    let dot_entry = CustomEntry {
+        name: ".".to_string(),
+        metadata: metadata(current_dir)?,
+    };
+
+    // Create a list of custom entries
+    let mut all_entries: Vec<CustomEntry> = entries
+        .into_iter()
+        .map(|entry| CustomEntry {
+            name: entry.file_name().to_string_lossy().to_string(),
+            metadata: entry.metadata().unwrap(),
+        })
+        .collect();
+
+    if show_hidden {
+        all_entries.insert(0, dot_entry);
+        all_entries.insert(0, dotdot_entry);
     }
 
-    for entry in entries {
-        let name = entry.file_name();
-        let name_str = name.to_string_lossy();
+    all_entries.sort_by(|a, b| a.name.cmp(&b.name));
 
-        if !show_hidden && name_str.starts_with(".") {
+    // Calculate the total block size
+    let mut block_size = 0;
+    for entry in &all_entries {
+        block_size += entry.metadata.blocks() / 2;
+    }
+
+    if long_format {
+        println!("total {}", block_size);
+    }
+
+    for entry in all_entries {
+        let name = entry.name;
+        let metadata = entry.metadata;
+
+        if !show_hidden && name.starts_with(".") {
             continue;
         }
 
-        let metadata = entry.metadata()?;
-
         if long_format {
-            let file_type = if metadata.is_dir() { "d" } else { "-" };
+            // Determine the file type
+            let file_type = if metadata.is_dir() {
+                "d"
+            } else if metadata.file_type().is_symlink() {
+                "l"
+            } else if metadata.file_type().is_char_device() {
+                "c"
+            } else if metadata.file_type().is_block_device() {
+                "b"
+            } else {
+                "-"
+            };
+
             let permissions = permissions_string(&metadata.permissions());
+
+            let mut name_display = name.to_string();
+            if metadata.file_type().is_symlink() {
+                let target = read_link(current_dir.join(&name))
+                    .unwrap_or_else(|_| PathBuf::from(NOTHING))
+                    .to_string_lossy()
+                    .to_string();
+                name_display = format!("{} -> {}", name, target);
+            } else if show_indicator {
+                if metadata.is_dir() {
+                    name_display.push('/');
+                } else if metadata.permissions().mode() & 0o111 != 0 {
+                    name_display.push('*');
+                }
+            }
+
+            let color = get_color(file_type, &metadata.permissions());
+            let reset_color = "\x1b[0m";
+
             let nlink = metadata.nlink();
             let uid = metadata.uid();
             let gid = metadata.gid();
@@ -70,17 +143,8 @@ pub fn ls(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
             let modified = metadata.modified()?;
             let datetime = format_datetime(modified);
 
-            let mut name_display = name_str.to_string();
-            if show_indicator {
-                if metadata.is_dir() {
-                    name_display.push('/');
-                } else if metadata.permissions().mode() & 0o111 != 0 {
-                    name_display.push('*');
-                }
-            }
-
             println!(
-                "{}{} {:>2} {} {} {:>8} {} {}",
+                "{}{} {:>2} {:>8} {:>8} {:>8} {} {}{}{}",
                 file_type,
                 permissions,
                 nlink,
@@ -88,10 +152,27 @@ pub fn ls(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
                 gid_to_name(gid),
                 size,
                 datetime,
-                name_display
+                color,
+                name_display,
+                reset_color
             );
         } else {
-            let mut name_display = name_str.to_string();
+            let file_type = if metadata.is_dir() {
+                "d"
+            } else if metadata.file_type().is_symlink() {
+                "l"
+            } else if metadata.file_type().is_char_device() {
+                "c"
+            } else if metadata.file_type().is_block_device() {
+                "b"
+            } else {
+                "-"
+            };
+
+            let color = get_color(file_type, &metadata.permissions());
+            let reset_color = "\x1b[0m";
+
+            let mut name_display = name.to_string();
             if show_indicator {
                 if metadata.is_dir() {
                     name_display.push('/');
@@ -99,26 +180,14 @@ pub fn ls(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
                     name_display.push('*');
                 }
             }
-            print!("{} ", name_display);
+
+            print!("{}{}{}  ", color, name_display, reset_color);
         }
     }
 
     if !long_format {
         println!();
     }
+
     Ok(())
-}
-
-fn permissions_string(permissions: &Permissions) -> String {
-    let mode = permissions.mode();
-    let mut result = String::with_capacity(9);
-
-    for i in (0..3).rev() {
-        let offset = i * 3;
-        result.push(if mode & (1 << (offset + 2)) != 0 { 'r' } else { '-' });
-        result.push(if mode & (1 << (offset + 1)) != 0 { 'w' } else { '-' });
-        result.push(if mode & (1 << offset) != 0 { 'x' } else { '-' });
-    }
-
-    result
 }
