@@ -43,13 +43,20 @@ make run
 │   │   ├── cp.rs
 │   │   ├── echo.rs
 │   │   ├── exit.rs
+│   │   ├── ls.rs
 │   │   ├── mkdir.rs
 │   │   ├── mv.rs
 │   │   ├── pwd.rs
-│   │   └── rm.rs
+│   │   ├── rm.rs
+│   │   └── touch.rs
 │   ├── utils
 │   │   ├── mod.rs
-│   │   └── error.rs
+│   │   ├── color.rs
+│   │   ├── date.rs
+│   │   ├── error.rs
+│   │   ├── messages.rs
+│   │   ├── path.rs
+│   │   └── utils.rs
 │   ├── main.rs
 │   └── shell.rs
 ├── .gitignore
