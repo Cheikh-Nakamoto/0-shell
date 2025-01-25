@@ -1,5 +1,5 @@
-use std::time::{SystemTime, UNIX_EPOCH};
 use crate::utils::messages::{NOTHING, TIME_WENT_BACKWARDS};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 /**
  * Format a datetime to a string.

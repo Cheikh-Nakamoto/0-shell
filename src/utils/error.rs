@@ -1,7 +1,6 @@
+use std::error;
 use std::fmt::{Display, Formatter};
 use std::io::Error;
-use std::error;
-use crate::utils::messages::NO_HOME_DIRECTORY;
 
 /**
  * Custom error type for the shell
@@ -11,7 +10,6 @@ pub enum ShellError {
     IoError(Error),
     CommandNotFound(String),
     InvalidArguments(String),
-    HomeDirNotFound,
 }
 
 impl error::Error for ShellError {
@@ -37,14 +35,13 @@ impl From<Error> for ShellError {
 
 impl Display for ShellError {
     /**
-        * Formats the error message
+     * Formats the error message
     */
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             ShellError::IoError(e) => write!(f, "\x1b[31m{}\x1b[0m", e),
             ShellError::CommandNotFound(cmd) => write!(f, "\x1b[31mCommand '{}' not found\x1b[0m", cmd),
             ShellError::InvalidArguments(msg) => write!(f, "\x1b[31m{}\x1b[0m", msg),
-            ShellError::HomeDirNotFound => write!(f, "\x1b[31m{NO_HOME_DIRECTORY}\x1b[0m"),
         }
     }
 }

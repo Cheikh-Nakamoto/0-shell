@@ -1,8 +1,8 @@
-use std::{env, io};
-use std::io::{stdin, stdout, Write};
 use crate::commands::exit::exit;
 use crate::shell::Shell;
 use crate::utils::messages::CANNOT_READ_INPUT;
+use std::io::{stdin, stdout, Write};
+use std::{env, io};
 
 mod commands;
 mod utils;
@@ -22,7 +22,7 @@ fn main() -> io::Result<()> {
             current_dir_display.to_string()
         };
 
-        print!("\x1b[48;5;238m{}\x1b[0m $ \x1b[38;5;238m\x1b[0m", prompt);
+        print!("\x1b[1;33;48;5;238m{}\x1b[0m $ \x1b[38;5;238m\x1b[0m", prompt);
         stdout().flush()?;
 
         let mut input = String::new();

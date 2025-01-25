@@ -1,26 +1,26 @@
+use crate::utils::error::ShellError;
+use crate::utils::messages::{CANNOT_COPY, CANNOT_CREATE_DIR, CANNOT_STAT, NO_SUCH_FILE, REQUIRE_SOURCE_DEST, SOURCE_HAS_NO_FILE_NAME};
 use std::fs::{copy, create_dir_all, read_dir};
 use std::io::{Error, ErrorKind};
 use std::path::Path;
-use crate::utils::error::ShellError;
-use crate::utils::messages::{CANNOT_COPY, CANNOT_CREATE_DIR, CANNOT_STAT, NO_SUCH_FILE, REQUIRE_SOURCE_DEST, SOURCE_HAS_NO_FILE_NAME};
 
 /**
-    * Copy a file or directory to another location.
-    *
-    * # Arguments
-    * * `current_dir` - The current directory.
-    * * `args` - The arguments passed to the command.
-    *
-    * # Example
-    * ```rust
-    * use std::path::Path;
-    * use shell::commands::cp;
-    *
-    * let current_dir = Path::new("/home/user");
-    * let args = vec!["file.txt", "new_file.txt"];
-    *
-    * cp(current_dir, &args);
-    * ```
+ * Copy a file or directory to another location.
+ *
+ * # Arguments
+ * * `current_dir` - The current directory.
+ * * `args` - The arguments passed to the command.
+ *
+ * # Example
+ * ```rust
+ * use std::path::Path;
+ * use shell::commands::cp;
+ *
+ * let current_dir = Path::new("/home/user");
+ * let args = vec!["file.txt", "new_file.txt"];
+ *
+ * cp(current_dir, &args);
+ * ```
 */
 pub fn cp(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
     if args.len() != 2 {

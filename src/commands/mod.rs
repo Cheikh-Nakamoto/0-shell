@@ -7,3 +7,4 @@ pub(crate) mod cp;
 pub(crate) mod mv;
 pub(crate) mod rm;
 pub(crate) mod exit;
+pub(crate) mod touch;

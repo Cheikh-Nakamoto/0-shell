@@ -1,23 +1,27 @@
 # 🖥️ 0-shell
+
 ### 🥅 Goal
+
 - [x] Create a shell that can execute basic commands
 - [x] Commands
-  - [x] echo
-  - [x] cd
-  - [x] ls, including flags -l, -a, and -F
-  - [x] pwd
-  - [x] cat
-  - [x] cp
-  - [x] rm, including flags -r
-  - [x] mv
-  - [x] mkdir
-  - [x] exit
+    - [x] echo
+    - [x] cd
+    - [x] ls, including flags -l, -a, and -F
+    - [x] pwd
+    - [x] cat
+    - [x] cp
+    - [x] rm, including flags -r
+    - [x] mv
+    - [x] mkdir
+    - [x] exit
 - [x] Interruption with Ctrl+D
 - [x] Colors for errors
 
 ### ⚙️ How to run
+
 1. Clone the repository
 2. Open a terminal in the repository folder and run the following commands:
+
 ```bash
 make clean
 make build
@@ -29,6 +33,7 @@ make run
 ```
 
 ### Tree
+
 ```text
 0-shell
 ├── src
@@ -54,6 +59,7 @@ make run
 ```
 
 ### Contributors
+
 - Franchis Janel
 
 ###### Powered by Zone01Dakar

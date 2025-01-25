@@ -1,11 +1,11 @@
+use crate::utils::error::ShellError;
+use crate::utils::messages::NO_HOME_DIRECTORY;
 use std::env;
 use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
-use crate::utils::error::ShellError;
-use crate::utils::messages::NO_HOME_DIRECTORY;
 
 /**
-    * Get the home directory of the current user.
+ * Get the home directory of the current user.
 */
 pub fn get_home_dir() -> Result<PathBuf, ShellError> {
     #[cfg(unix)]

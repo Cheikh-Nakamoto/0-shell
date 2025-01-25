@@ -1,27 +1,27 @@
-use std::fs::{copy, create_dir_all, remove_dir_all, remove_file, rename};
-use std::io::{Error, ErrorKind};
-use std::path::Path;
 use crate::commands::cp::copy_dir_all;
 use crate::utils::error::ShellError;
 use crate::utils::messages::{CANNOT_CREATE_DIR, CANNOT_MOVE, CANNOT_REMOVE, CANNOT_STAT, NO_SUCH_FILE, REQUIRE_SOURCE_DEST, SOURCE_HAS_NO_FILE_NAME};
+use std::fs::{copy, create_dir_all, remove_dir_all, remove_file, rename};
+use std::io::{Error, ErrorKind};
+use std::path::Path;
 
 /**
-    * Move a file or directory to another location.
-    *
-    * # Arguments
-    * * `current_dir` - The current directory.
-    * * `args` - The arguments passed to the command.
-    *
-    * # Example
-    * ```rust
-    * use std::path::Path;
-    * use shell::commands::mv;
-    *
-    * let current_dir = Path::new("/home/user");
-    * let args = vec!["file.txt", "new_file.txt"];
-    *
-    * mv(current_dir, &args);
-    * ```
+ * Move a file or directory to another location.
+ *
+ * # Arguments
+ * * `current_dir` - The current directory.
+ * * `args` - The arguments passed to the command.
+ *
+ * # Example
+ * ```rust
+ * use std::path::Path;
+ * use shell::commands::mv;
+ *
+ * let current_dir = Path::new("/home/user");
+ * let args = vec!["file.txt", "new_file.txt"];
+ *
+ * mv(current_dir, &args);
+ * ```
 */
 pub fn mv(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
     if args.len() != 2 {
