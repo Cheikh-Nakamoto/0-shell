@@ -67,6 +67,8 @@ make run
 
 ### Contributors
 
-- Franchis Janel
+- Louis Isaac Jean Samba DIOUF
+- Cheikh Mounirou Coly DIOUF
+- Franchis Janel MOKOMBA
 
-###### Powered by Zone01Dakar
+###### &copy; 2025 - Powered by Zone01Dakar
