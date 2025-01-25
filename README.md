@@ -71,4 +71,4 @@ make run
 - Cheikh Mounirou Coly DIOUF
 - Franchis Janel MOKOMBA
 
-###### &copy; 2025 - Powered by Zone01Dakar
+###### &copy; 2025 - Powered by Zone01 Dakar
