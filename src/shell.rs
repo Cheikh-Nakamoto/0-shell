@@ -111,7 +111,10 @@ impl Shell {
                     ))
                 })?;
 
-                if let Some(step_back) = back {
+                if let Some(mut step_back) = back {
+                    if step_back.is_empty() {
+                        step_back = "/".to_string();
+                    }
                     self.current_dir = PathBuf::from(step_back);
                 } else {
                     self.current_dir = new_dir;
