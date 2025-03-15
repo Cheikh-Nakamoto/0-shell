@@ -90,6 +90,19 @@ impl Shell {
         };
 
         if let Ok(metadata) = metadata(&new_dir) {
+            let mut back: Option<String> = None;
+            if new_dir.ends_with("..") {
+                let p = new_dir.to_str().unwrap();
+                let mut path_parts: Vec<&str> = p.split("/").collect();
+                if !path_parts.is_empty() {
+                    path_parts.pop();
+                    if !path_parts.is_empty() {
+                        path_parts.pop();
+                    }
+                }
+                back = Some(path_parts.join("/"));
+            }
+            
             if metadata.is_dir() {
                 env::set_current_dir(&new_dir).map_err(|e| {
                     ShellError::IoError(Error::new(
@@ -98,7 +111,12 @@ impl Shell {
                     ))
                 })?;
 
-                self.current_dir = new_dir;
+                if let Some(step_back) = back {
+                    self.current_dir = PathBuf::from(step_back);
+                } else {
+                    self.current_dir = new_dir;
+                }
+
                 Ok(())
             } else {
                 Err(ShellError::InvalidArguments(format!("cd: {}", NOT_A_DIRECTORY)))
