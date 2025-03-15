@@ -35,7 +35,7 @@ pub fn cat(current_dir: &Path, args: &[&str]) -> Result<(), ShellError> {
         file.read_to_string(&mut contents).map_err(|_| ShellError::InvalidArguments(format!("cat: {}: {NO_SUCH_FILE}", file_name)))?;
         print!("{}", contents);
     }
-    println!();
+    // println!();
 
     Ok(())
 }
